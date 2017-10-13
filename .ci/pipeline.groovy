@@ -27,51 +27,53 @@ def call(Closure body) {
 	}
 
 	try {
-		if (config.is_pull_request) {
-			def gitler = load(config.repository_root+'.ci/gitler.groovy')
-			stage('Gitler') {
-				gitler(config)
+		ansiColor('xterm') {
+			if (config.is_pull_request) {
+				def gitler = load(config.repository_root+'.ci/gitler.groovy')
+				stage('Gitler') {
+					gitler(config)
+				}
 			}
-		}
 
-		parallel ArduinoBuilds: {
-			lock(quantity: 1, resource: 'arduinoEnv') {
-				stage('MySensorsMicro (tests,development)') {
-					dir(config.library_root) {
-						deleteDir()
+			parallel ArduinoBuilds: {
+				lock(quantity: 1, resource: 'arduinoEnv') {
+					stage('MySensorsMicro (tests,development)') {
+						dir(config.library_root) {
+							deleteDir()
+						}
+						checkout(changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/development']],
+							extensions: [
+								[$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: true],
+								[$class: 'RelativeTargetDirectory', relativeTargetDir: config.library_root]
+							],
+							userRemoteConfigs: [[url: 'https://github.com/mysensors/MySensors.git']]])
+						config.tests    = findFiles(glob: config.library_root+'tests/**/*.ino')
+						config.examples = findFiles(glob: config.library_root+'examples/**/*.ino')
+						arduino.buildMySensorsMicro(config, config.tests, 'Tests-development')
 					}
-					checkout(changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/development']],
-						extensions: [
-							[$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: true],
-							[$class: 'RelativeTargetDirectory', relativeTargetDir: config.library_root]
-						],
-						userRemoteConfigs: [[url: 'https://github.com/mysensors/MySensors.git']]])
-					config.tests    = findFiles(glob: config.library_root+'tests/**/*.ino')
-					config.examples = findFiles(glob: config.library_root+'examples/**/*.ino')
-					arduino.buildMySensorsMicro(config, config.tests, 'Tests-development')
-				}
-				stage('MySensorsMicro (examples,development)') {
-					arduino.buildMySensorsMicro(config, config.examples, 'Examples-development')
-				}
-				stage('MySensorsMicro (tests,master)') {
-					dir(config.library_root) {
-						deleteDir()
+					stage('MySensorsMicro (examples,development)') {
+						arduino.buildMySensorsMicro(config, config.examples, 'Examples-development')
 					}
-					checkout(changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/master']],
-						extensions: [
-							[$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: true],
-							[$class: 'RelativeTargetDirectory', relativeTargetDir: config.library_root]
-						],
-						userRemoteConfigs: [[url: 'https://github.com/mysensors/MySensors.git']]])
-					config.tests    = findFiles(glob: config.library_root+'tests/**/*.ino')
-					config.examples = findFiles(glob: config.library_root+'examples/**/*.ino')
-					arduino.buildMySensorsMicro(config, config.tests, 'Tests-master')
+					stage('MySensorsMicro (tests,master)') {
+						dir(config.library_root) {
+							deleteDir()
+						}
+						checkout(changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: '*/master']],
+							extensions: [
+								[$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: true],
+								[$class: 'RelativeTargetDirectory', relativeTargetDir: config.library_root]
+							],
+							userRemoteConfigs: [[url: 'https://github.com/mysensors/MySensors.git']]])
+						config.tests    = findFiles(glob: config.library_root+'tests/**/*.ino')
+						config.examples = findFiles(glob: config.library_root+'examples/**/*.ino')
+						arduino.buildMySensorsMicro(config, config.tests, 'Tests-master')
+					}
+					stage('MySensorsMicro (examples,master)') {
+						arduino.buildMySensorsMicro(config, config.examples, 'Examples-master')
+					}
 				}
-				stage('MySensorsMicro (examples,master)') {
-					arduino.buildMySensorsMicro(config, config.examples, 'Examples-master')
-				}
-			}
-		}, failFast: true
+			}, failFast: true
+		}
 	}	catch(ex) {
 		currentBuild.result = 'FAILURE'
 		throw ex

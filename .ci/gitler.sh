@@ -58,21 +58,6 @@ if [ $result -ne 0 ]; then
 	echo "<br>" >> gitler.html
 fi
 
-# Evaluate coding style
-astyle --options=.mystools/astyle/config/style.cfg -nq --recursive "*.h" "*.c" "*.cpp"
-git diff > restyling.patch
-if [ -s restyling.patch ]; then
-	echo "<b>This commit is not meeting the coding standards, a mail with a patch has been sent to you that if applied to your PR, will make it meet the coding standards.</b><br>" >> gitler.html
-	echo "You apply the patch using:<br>" >> gitler.html
-	echo "git apply restyling.patch<br>" >> gitler.html
-	echo "<br>" >> gitler.html
-	result=1
-else
-	echo "This commit is meeting the coding standards, congratulations!<br>" >> gitler.html
-	echo "<br>" >> gitler.html
-	rm restyling.patch
-fi
-
 # Evaluate if there exists booleans in the code tree (not counting this file)
 if git grep -q boolean -- `git ls-files | grep -v gitler.sh`
 then

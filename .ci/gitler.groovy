@@ -66,18 +66,6 @@ def call(config) {
 							cd ${config.repository_root}/.ci
 							./gitler.sh""")
 
-	if (fileExists(config.repository_root+'restyling.patch')) {
-		emailext (
-			subject: "Job '${env.JOB_NAME} #${env.BUILD_NUMBER} [PR#${env.CHANGE_ID}]' failed due to bad code styling",
-			body: """<p>Job '${env.JOB_NAME} [<a href="${env.CHANGE_URL}">PR#${env.CHANGE_ID}</a> - ${env.CHANGE_TITLE}]' failed because code style does not follow the standards.</p>
-			A patch to rectify the errors is attached. You apply the patch using:<br>
-			git apply restyling.patch<p>
-			If you disagree to this, please discuss it <a href="${env.CHANGE_URL}">here</a>.<p>
-			Yours sincerely, Gitler, on behalf of Jenkins""",
-			mimeType: 'text/html', to: '${env.CHANGE_AUTHOR_EMAIL}',
-			attachLog: false, compressLog: false, attachmentsPattern: config.repository_root+'restyling.patch'
-		)
-	}
 	publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: true,
 		reportDir: config.repository_root,
 		reportFiles: 'gitler.html', reportName: 'Gitler report', reportTitles: ''])

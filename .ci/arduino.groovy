@@ -15,11 +15,9 @@ def buildArduino(config, String buildFlags, String sketch, String key) {
 	def site_specifics    = ' -hardware '+jenkins_packages+' -tools '+jenkins_packages
 	def repo_specifics    = ' -hardware hardware -libraries . '
 	def build_cmd         = builder+standard_args+builder_specifics+site_specifics+repo_specifics+buildFlags
-	ansiColor('xterm') {
-		sh """#!/bin/bash
-					printf "\\e[1m\\e[32mBuilding \\e[34m${sketch} \\e[0musing \\e[1m\\e[36m${build_cmd}\\e[0m\\n"
-					${build_cmd} ${sketch} 2>> compiler_${key}.log"""
-	}
+	sh """#!/bin/bash
+				printf "\\e[1m\\e[32mBuilding \\e[34m${sketch} \\e[0musing \\e[1m\\e[36m${build_cmd}\\e[0m\\n"
+				${build_cmd} ${sketch} 2>> compiler_${key}.log"""
 }
 
 def parseWarnings(String key) {
@@ -32,14 +30,12 @@ def parseWarnings(String key) {
  		healthy: '', includePattern: '', messagesPattern: '',
  		parserConfigurations: [[parserName: 'Arduino/AVR', pattern: 'compiler_'+key+'.log']],
  		unHealthy: '', unstableNewAll: '0', unstableTotalAll: '0'
-	ansiColor('xterm') {
-		sh """#!/bin/bash
-					echo "Compiler warnings/errors:"
-					printf "\\e[101m"
-					cat compiler_${key}.log
-					printf "\\e[0m"
-					rm compiler_${key}.log"""
-	}
+	sh """#!/bin/bash
+				echo "Compiler warnings/errors:"
+				printf "\\e[101m"
+				cat compiler_${key}.log
+				printf "\\e[0m"
+				rm compiler_${key}.log"""
 }
 
 def buildMySensorsMicro(config, sketches, String key) {
@@ -55,12 +51,17 @@ def buildMySensorsMicro(config, sketches, String key) {
 			}
 		}
 	} catch (ex) {
+		echo "Build failed with: "+ ex.toString()
+		config.pr.setBuildStatus(config, 'FAILURE', 'Toll gate (MySensorsMicro - '+key+')', 'Build error', '${BUILD_URL}')
+		throw ex
 	} finally {
 		parseWarnings(key+'_MySensorsMicro')
 	}
 	if (currentBuild.currentResult == 'UNSTABLE') {
 		config.pr.setBuildStatus(config, 'ERROR', 'Toll gate (MySensorsMicro - '+key+')', 'Warnings found', '${BUILD_URL}warnings2Result/new')
-		error 'Termiated due to warnings found'
+		if (config.is_pull_request) {
+			error 'Termiated due to warnings found'
+		}
 	} else if (currentBuild.currentResult == 'FAILURE') {
 		config.pr.setBuildStatus(config, 'FAILURE', 'Toll gate (MySensorsMicro - '+key+')', 'Build error', '${BUILD_URL}')
 	} else {
