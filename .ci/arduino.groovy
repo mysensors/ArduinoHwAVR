@@ -39,7 +39,7 @@ def parseWarnings(String key) {
 }
 
 def buildMySensorsMicro(config, sketches, String key) {
-	def fqbn = '-fqbn MySensors:avr:MysensorsMicro -prefs build.f_cpu=1000000 -prefs build.mcu=atmega328p'
+	def fqbn = '-fqbn MySensors:avr:MysensorsMicro -prefs build.f_cpu=1000000 -prefs build.mcu=atmega328p -prefs compiler.ar.cmd=avr-ar'
 	config.pr.setBuildStatus(config, 'PENDING', 'Toll gate (MySensorsMicro - '+key+')', 'Building...', '${BUILD_URL}flowGraphTable/')
 	try {
 		for (sketch = 0; sketch < sketches.size(); sketch++) {
