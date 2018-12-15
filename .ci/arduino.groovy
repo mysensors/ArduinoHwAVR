@@ -47,6 +47,7 @@ def buildMySensorsMicro(config, sketches, String key) {
 					sketches[sketch].path != config.library_root+'examples/GatewayESP8266MQTTClient/GatewayESP8266MQTTClient.ino' &&
 					sketches[sketch].path != config.library_root+'examples/GatewayESP8266OTA/GatewayESP8266OTA.ino' &&
 			        sketches[sketch].path != config.library_root+'examples/GatewayESP32/GatewayESP32.ino' &&
+					sketches[sketch].path != config.library_root+'examples/GatewayESP32OTA/GatewayESP32OTA.ino' &&
 			        sketches[sketch].path != config.library_root+'examples/GatewayESP32MQTTClient/GatewayESP32MQTTClient.ino' &&
 					sketches[sketch].path != config.library_root+'examples/GatewayGSMMQTTClient/GatewayGSMMQTTClient.ino' &&
 					sketches[sketch].path != config.library_root+'examples/SensebenderGatewaySerial/SensebenderGatewaySerial.ino') {
