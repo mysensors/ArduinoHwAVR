@@ -6,7 +6,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
 
 name=MySensors AVR based boards
-version=1.0.1
+version=1.0.2
 
 # Derived from Arduino AVR 1.6.11.
 
