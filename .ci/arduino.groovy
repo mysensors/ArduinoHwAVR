@@ -1,6 +1,6 @@
 #!groovy
 def buildArduino(config, String buildFlags, String sketch, String key) {
-	def root              = '/opt/arduino-1.8.9/'
+	def root              = '/opt/arduino-1.8.12/'
 	if (config.nightly_arduino_ide)
 	{
 		root = '/opt/arduino-nightly/'
@@ -25,8 +25,10 @@ def parseWarnings(String key) {
  		defaultEncoding: '',
  		excludePattern: '''.*/EEPROM\\.h,.*/Dns\\.cpp,.*/socket\\.cpp,.*/util\\.h,.*/Servo\\.cpp,
  											 .*/Adafruit_NeoPixel\\.cpp,.*/UIPEthernet.*,.*/SoftwareSerial\\.cpp,
- 											 .*/pins_arduino\\.h,.*/Stream\\.cpp,.*/USBCore\\.cpp,.*/Wire\\.cpp,
- 											 .*/hardware/esp8266.*,.*/libraries/SD/.*''',
+ 											 .*/pins_arduino\\.h,.*/Stream\\.cpp,.*/USBCore\\.cpp,.*/libraries/Wire/.*,
+ 											 .*/hardware/STM32F1.*,.*/hardware/esp8266.*,.*/hardware/esp32.*,
+											 .*/libraries/SD/.*,.*/libraries/Ethernet/.*''',
+
  		healthy: '', includePattern: '', messagesPattern: '',
  		parserConfigurations: [[parserName: 'Arduino/AVR', pattern: 'compiler_'+key+'.log']],
  		unHealthy: '', unstableNewAll: '0', unstableTotalAll: '0'
